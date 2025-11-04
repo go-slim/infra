@@ -1,0 +1,33 @@
+# Go 编译产物
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go 工作区和依赖
+go.work
+vendor/
+
+# 构建输出目录
+dist/
+build/
+bin/
+
+# IDE 文件
+.vscode/
+.idea/
+.zed/
+*.swp
+*.swo
+
+# 操作系统生成的文件
+.DS_Store
+._*
+Thumbs.db
+
+# 日志和临时文件
+*.log
+*.tmp
+*.temp
