@@ -1,0 +1,32 @@
+{
+  "name": "push",
+  "on": {
+    "push": {
+      "branches": [
+        "main"
+      ]
+    }
+  },
+  "repository": {
+    "name": "infra",
+    "owner": {
+      "login": "local"
+    },
+    "clone_url": "http://localhost/infra.git"
+  },
+  "sha": "1234567890abcdef",
+  "ref": "refs/heads/main",
+  "head_commit": {
+    "id": "1234567890abcdef",
+    "message": "测试提交",
+    "timestamp": "2025-11-04T17:00:00Z",
+    "author": {
+      "name": "Local Developer",
+      "email": "local@example.com"
+    }
+  },
+  "sender": {
+    "login": "local",
+    "type": "User"
+  }
+}

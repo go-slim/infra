@@ -1,0 +1,19 @@
+# act 配置文件 - 本地 GitHub Actions 运行环境
+
+# M1 芯片配置
+--container-architecture linux/amd64
+
+# 使用腾讯云镜像源
+-P ubuntu-latest=ccr.ccs.tencentyun.com/library/ubuntu:22.04
+-P ubuntu-22.04=ccr.ccs.tencentyun.com/library/ubuntu:22.04
+-P ubuntu-20.04=ccr.ccs.tencentyun.com/library/ubuntu:20.04
+
+# 工作流配置
+--workflows .github/workflows/
+--eventpath ./.github/event.json
+
+# 使用 secrets 文件
+--secret-file .secrets
+
+# 使用 bind 模式，减少网络依赖
+--bind
