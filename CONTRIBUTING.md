@@ -91,18 +91,8 @@ act --verbose
 ├── .actrc                  # act 配置文件
 ├── .secrets               # 敏感信息文件（已添加到 .gitignore）
 ├── backoff/                # 重试库
-│   ├── backoff.go
-│   ├── backoff_test.go
-│   ├── config.go
-│   └── README.md
 ├── co/                     # 并发工具包
-│   ├── simplemutex.go
-│   ├── simplemutex_test.go
-│   ├── goroutinepool.go
-│   ├── goroutinepool_test.go
-│   ├── spinutils.go
-│   ├── spinutils_test.go
-│   └── README.md
+├── sdm/                    # 分布式互斥锁
 ├── go.mod
 ├── go.sum
 ├── README.md
@@ -210,6 +200,7 @@ go tool cover -html=coverage.out
 
 - **backoff**: 指数退避重试机制
 - **co**: 并发工具包
+- **sdm**: 简单的分布式互斥锁实现
 
 **特点**：
 
