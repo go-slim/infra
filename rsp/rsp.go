@@ -42,6 +42,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"go-slim.dev/misc"
 	"go-slim.dev/slim"
 	"go-slim.dev/v"
 )
@@ -242,7 +243,8 @@ func respond(c slim.Context, o *options) (err error) {
 				return
 			}
 		}
-		err = c.JSONP(status, DefaultJsonpCallback, m)
+		// No callback parameter found, fall back to JSON instead of using default callback
+		err = c.JSON(status, m)
 	case "xml":
 		// Note: XML support is limited. For now, fall back to JSON
 		// since XML marshalling of interface{} types is complex
@@ -278,11 +280,11 @@ func result(c slim.Context, o *options) (int, slim.Map) {
 func inferHTTPError(c slim.Context, o *options) (int, slim.Map, bool) {
 	var he *slim.HTTPError
 	if errors.As(o.err, &he) {
-		// TODO resolve code
-		m := slim.Map{
-			"code": "",
-			"ok":   he.Code >= 200 && he.Code < 300, // Only 2xx status codes indicate success
-			"msg":  he.Message,
+		opts := *o
+		o.status = cmp.Or(o.status, he.Code)
+		status, m := inferStatusCode(&opts)
+		if !misc.IsZero(he.Message) && http.StatusText(status) != he.Message {
+			m["msg"] = he.Message
 		}
 		if o.data != nil {
 			m["data"] = o.data
@@ -290,20 +292,31 @@ func inferHTTPError(c slim.Context, o *options) (int, slim.Map, bool) {
 		if he.Internal != nil && c.Slim().Debug {
 			m["error"] = fmt.Sprintf("%+v", he.Internal)
 		}
-		return cmp.Or(o.status, he.Code), m, true
+		return status, m, true
 	}
 	return 0, nil, false
 }
 
 func inferValidationError(o *options) (int, slim.Map, bool) {
-	var verr *v.Errors
-	if !errors.As(o.err, &verr) || verr.IsEmpty() {
-		return 0, nil, false
+	problems := make(Problems)
+
+	// Handle v.Errors (multiple validation errors)
+	var verrs *v.Errors
+	if errors.As(o.err, &verrs) && !verrs.IsEmpty() {
+		for _, e := range verrs.All() {
+			collectProblem(problems, e)
+		}
+	} else {
+		// Handle single v.Error
+		var verr *v.Error
+		if !errors.As(o.err, &verr) {
+			return 0, nil, false
+		}
+		collectProblem(problems, verr)
 	}
 
-	problems := make(Problems)
-	for _, e := range verr.All() {
-		collectProblem(problems, e)
+	if len(problems) == 0 {
+		return 0, nil, false
 	}
 
 	m := slim.Map{
@@ -314,9 +327,7 @@ func inferValidationError(o *options) (int, slim.Map, bool) {
 	if o.data != nil {
 		m["data"] = o.data
 	}
-	if len(problems) > 0 {
-		m["problems"] = problems
-	}
+	m["problems"] = problems
 	return cmp.Or(o.status, 400), m, true
 }
 
@@ -334,8 +345,13 @@ func inferFundamentalErrir(c slim.Context, o *options) (int, slim.Map, bool) {
 		} else if data := rerr.Data(); data != nil {
 			m["data"] = data
 		}
-		if err := rerr.Cause(); err != nil && c.Slim().Debug {
-			m["error"] = fmt.Sprintf("%+v", err)
+		if c.Slim().Debug {
+			if err := rerr.Cause(); err != nil {
+				m["error"] = fmt.Sprintf("%+v", err)
+			} else {
+				// Show the fundamental error itself in debug mode
+				m["error"] = fmt.Sprintf("%+v", o.err)
+			}
 		}
 		return status, m, true
 	}
@@ -371,27 +387,34 @@ func inferStatusCode(o *options) (int, slim.Map) {
 	switch {
 	case status < 0:
 		status = http.StatusInternalServerError
+		m["ok"] = false
 		m["msg"] = cmp.Or(o.message, "An unexpected error occurred")
 		m["code"] = "InternalError"
 	case status == 0:
 		status = http.StatusOK
+		m["ok"] = true
 		m["msg"] = cmp.Or(o.message, "ok")
 		m["code"] = "OK"
 	case o.status < 200:
+		m["ok"] = false
 		m["msg"] = cmp.Or(o.message, "An unexpected error occurred")
 		m["code"] = "InternalError"
 	case status < 300:
+		m["ok"] = true
 		m["msg"] = "ok"
 		m["code"] = "OK"
 	case status < 400:
 		// An error status code was set, we treat it as an internal error
+		m["ok"] = false
 		m["msg"] = cmp.Or(o.message, "An unexpected error occurred")
 		m["code"] = "InternalError"
 	case status < 500:
+		m["ok"] = false
 		m["msg"] = cmp.Or(o.message, "Bad request")
 		m["code"] = "BadRequest"
 	default:
 		status = http.StatusInternalServerError
+		m["ok"] = false
 		m["msg"] = cmp.Or(o.message, "An unexpected error occurred")
 		m["code"] = "InternalError"
 	}
