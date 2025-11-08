@@ -279,25 +279,30 @@ func result(c slim.Context, o *options) (int, slim.Map) {
 
 func inferHTTPError(c slim.Context, o *options) (int, slim.Map, bool) {
 	var he *slim.HTTPError
-	if errors.As(o.err, &he) {
-		opts := *o
-		o.status = cmp.Or(o.status, he.Code)
-		status, m := inferStatusCode(&opts)
-		if !misc.IsZero(he.Message) && http.StatusText(status) != he.Message {
-			m["msg"] = he.Message
-		}
-		if o.data != nil {
-			m["data"] = o.data
-		}
-		if he.Internal != nil && c.Slim().Debug {
-			m["error"] = fmt.Sprintf("%+v", he.Internal)
-		}
-		return status, m, true
+	if o.err == nil || !errors.As(o.err, &he) {
+		return 0, nil, false
 	}
-	return 0, nil, false
+
+	opts := *o
+	o.status = cmp.Or(o.status, he.Code)
+	status, m := inferStatusCode(&opts)
+	if !misc.IsZero(he.Message) && http.StatusText(status) != he.Message {
+		m["msg"] = he.Message
+	}
+	if o.data != nil {
+		m["data"] = o.data
+	}
+	if he.Internal != nil && c.Slim().Debug {
+		m["error"] = fmt.Sprintf("%+v", he.Internal)
+	}
+	return status, m, true
 }
 
 func inferValidationError(o *options) (int, slim.Map, bool) {
+	if o.err == nil {
+		return 0, nil, false
+	}
+
 	problems := make(Problems)
 
 	// Handle v.Errors (multiple validation errors)
@@ -333,29 +338,30 @@ func inferValidationError(o *options) (int, slim.Map, bool) {
 
 func inferFundamentalErrir(c slim.Context, o *options) (int, slim.Map, bool) {
 	var rerr Fundamental
-	if o.err != nil && errors.As(o.err, &rerr) {
-		status := cmp.Or(o.status, rerr.Status())
-		m := slim.Map{
-			"code": rerr.Code(),
-			"ok":   status >= 200 && status < 300, // Only 2xx status codes indicate success
-			"msg":  cmp.Or(o.message, rerr.Text()),
-		}
-		if o.data != nil {
-			m["data"] = o.data
-		} else if data := rerr.Data(); data != nil {
-			m["data"] = data
-		}
-		if c.Slim().Debug {
-			if err := rerr.Cause(); err != nil {
-				m["error"] = fmt.Sprintf("%+v", err)
-			} else {
-				// Show the fundamental error itself in debug mode
-				m["error"] = fmt.Sprintf("%+v", o.err)
-			}
-		}
-		return status, m, true
+	if o.err == nil || !errors.As(o.err, &rerr) {
+		return 0, nil, false
 	}
-	return 0, nil, false
+
+	status := cmp.Or(o.status, rerr.Status())
+	m := slim.Map{
+		"code": rerr.Code(),
+		"ok":   status >= 200 && status < 300, // Only 2xx status codes indicate success
+		"msg":  cmp.Or(o.message, rerr.Text()),
+	}
+	if o.data != nil {
+		m["data"] = o.data
+	} else if data := rerr.Data(); data != nil {
+		m["data"] = data
+	}
+	if c.Slim().Debug {
+		if err := rerr.Cause(); err != nil {
+			m["error"] = fmt.Sprintf("%+v", err)
+		} else {
+			// Show the fundamental error itself in debug mode
+			m["error"] = fmt.Sprintf("%+v", o.err)
+		}
+	}
+	return status, m, true
 }
 
 func inferMistaken(c slim.Context, o *options) (int, slim.Map) {
