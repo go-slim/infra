@@ -5,7 +5,9 @@ go 1.25
 require (
 	github.com/redis/go-redis/v9 v9.16.0
 	github.com/stretchr/testify v1.11.1
+	github.com/tidwall/jsonc v0.3.2
 	golang.org/x/sync v0.17.0
+	golang.org/x/text v0.30.0
 )
 
 require (
