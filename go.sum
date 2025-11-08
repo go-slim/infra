@@ -131,10 +131,14 @@ go-slim.dev/env v0.0.0-20251105102129-80e5eab9df0d h1:tbpQfaPK832IawTsOREpLeDk37
 go-slim.dev/env v0.0.0-20251105102129-80e5eab9df0d/go.mod h1:lW3yc1KGPJ3FUUQM2IRnpVMx+T3zkIgAXwZNMvq8lGA=
 go-slim.dev/is v0.0.0-20251106173354-ef195cb88b4c h1:SMq/3gt0zjlK61p2bT3SjlJrop+h7uYYRNImZmPULGA=
 go-slim.dev/is v0.0.0-20251106173354-ef195cb88b4c/go.mod h1:DSue8NrfCDrey93GLL4pZmXhd9EAXCcXZpkQ2wEAs74=
+go-slim.dev/l4g v0.0.0-20251106143927-7a6ced3ba69f h1:mDcFRfyFwD/I4dOYtrhr5mMEEkdp9pMT0l5WoR646ac=
+go-slim.dev/l4g v0.0.0-20251106143927-7a6ced3ba69f/go.mod h1:oo5KbNzC3wOXHXSk/K5B1gwDTANh9EHvtpb+vrhPtd4=
 go-slim.dev/misc v0.0.0-20251106165320-45b542c55380 h1:WwI6XXNjV6+cRZhSg6vFgJECTIcZQI0BMQp18idQJhY=
 go-slim.dev/misc v0.0.0-20251106165320-45b542c55380/go.mod h1:fr2bvpyOeNBQOFVr2PVgla0UWL22cUKFQ4nPtrBeOX4=
 go-slim.dev/slim v0.0.0-20251106172815-16324bd9e856 h1:BHI0XVSJ6jNQ1aE638/kWwvHvXocRPlJGq1z35mPOWI=
 go-slim.dev/slim v0.0.0-20251106172815-16324bd9e856/go.mod h1:lpmPHUmc7gzQ9aAztw4K8pWhUq1r/Emf8Q/I/nu7Sf0=
+go-slim.dev/v v0.0.0-20251106170429-6675be02f65f h1:LAKMNsrAHkrVnZCcU8jrBlZlz60bx6dDjssyxFx+yqU=
+go-slim.dev/v v0.0.0-20251106170429-6675be02f65f/go.mod h1:uZzC5M5P+WowXYK5K5W1tT9MkuQft4yfmHuE/FS1g4A=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/crypto v0.6.0/go.mod h1:OFC/31mSvZgRz0V1QTNCzfAI1aIRzbiufJtkMIlEp58=
